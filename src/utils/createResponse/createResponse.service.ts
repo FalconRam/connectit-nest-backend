@@ -39,4 +39,14 @@ export class CreateResponseService {
       HttpStatus.BAD_REQUEST,
     );
   }
+  customErrorResponse(statusCode: number, payload: {}, customMessage: string) {
+    throw new HttpException(
+      {
+        status: false,
+        message: customMessage || 'Failure',
+        data: payload,
+      },
+      statusCode,
+    );
+  }
 }

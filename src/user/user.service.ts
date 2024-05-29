@@ -2,10 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
 import { UserLoginDTO } from './dto/UserLogin.dto';
-import { JwtService } from 'src/utils/jwt/jwt.service';
+// import { JwtService } from 'src/utils/jwt/jwt.service';
 import { CreateResponseService } from 'src/utils/createResponse/createResponse.service';
 import { Model } from 'mongoose';
 import { User } from './user.interface';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -35,9 +36,9 @@ export class UserService {
         'Either Email or Password is incorrect',
       );
 
-    const accessToken = await this.jwtService.signJWTToken({
-      email: userdetails.email,
+    const accessToken = await this.jwtService.signAsync({
       id: userdetails._id,
+      email: userdetails.email,
     });
 
     return this.createResponse.successResponse(
