@@ -1,16 +1,24 @@
-import * as mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 
 export const databaseProviders = [
   {
     provide: 'DATABASE_CONNECTION',
-    useFactory: async (): Promise<typeof mongoose> => {
+    useFactory: async (): Promise<Mongoose> => {
       const connectionUrl = process.env.CONNECTION_URL;
+
       if (!connectionUrl) {
         throw new Error('DB Connection establish error: URI is not defined');
       }
 
-      await mongoose.connect(connectionUrl);
-      return mongoose;
+      try {
+        const connection = await mongoose.connect(connectionUrl);
+
+        console.log('Connected to database');
+
+        return connection;
+      } catch (error) {
+        throw new Error(`Failed to connect to database: ${error}`);
+      }
     },
   },
 ];

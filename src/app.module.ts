@@ -11,6 +11,11 @@ import { userProviders } from './user/user.providers';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { PostsController } from './posts/posts.controller';
+import { PostsModule } from './posts/posts.module';
+import { PostsService } from './posts/posts.service';
+import { CloudinaryService } from './utils/cloudinary/cloudinary.service';
+import { postsProviders } from './posts/posts.providers';
 
 @Module({
   imports: [
@@ -20,17 +25,21 @@ import { APP_GUARD } from '@nestjs/core';
     DatabaseModule,
     UserModule,
     AuthModule,
+    PostsModule,
   ],
-  controllers: [AppController, UserController],
+  controllers: [AppController, UserController, PostsController],
   providers: [
     AppService,
     UserService,
+    PostsService,
     ...userProviders,
+    ...postsProviders,
     CreateResponseService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    CloudinaryService,
   ],
 })
 export class AppModule {}

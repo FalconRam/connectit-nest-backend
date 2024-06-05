@@ -1,4 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
 @Injectable()
 export class CreateResponseService {
@@ -9,44 +13,39 @@ export class CreateResponseService {
       message: customMessage || 'Success',
     };
   }
-  serverErrorResponse(payload: {}, customMessage: string) {
-    throw new HttpException(
-      {
-        status: false,
-        message: customMessage || 'An Error Occured, Please Try again.',
-        data: payload,
-      },
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );
-  }
-  notFoundErrorResponse(payload: {}, customMessage: string) {
-    throw new HttpException(
-      {
-        status: false,
-        message: customMessage || 'Resource Not found',
-        data: payload,
-      },
-      HttpStatus.NOT_FOUND,
-    );
-  }
-  badErrorResponse(payload: {}, customMessage: string) {
-    throw new HttpException(
-      {
-        status: false,
-        message: customMessage || 'Please check the Inputs',
-        data: payload,
-      },
-      HttpStatus.BAD_REQUEST,
-    );
+  successAuthResponse(
+    payload: {},
+    tokens: { accessToken: string; refreshToken: string },
+    customMessage: string,
+  ) {
+    return {
+      status: true,
+      data: payload,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      message: customMessage || 'Success',
+    };
   }
   customErrorResponse(statusCode: number, payload: {}, customMessage: string) {
     throw new HttpException(
       {
         status: false,
-        message: customMessage || 'Failure',
         data: payload,
+        message: customMessage || 'Failure',
       },
       statusCode,
     );
+  }
+  handleError(error: Error) {
+    console.log(error.message);
+    if (error instanceof HttpException) throw error;
+    else
+      throw new InternalServerErrorException(
+        this.customErrorResponse(
+          500,
+          {},
+          'An Error Occured, Please Try again.',
+        ),
+      );
   }
 }

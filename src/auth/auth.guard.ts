@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -38,20 +39,25 @@ export class AuthGuard implements CanActivate {
       );
     }
 
+    if (!process.env.AUTH_ACCESS_TOKEN_SECRET_KEY)
+      throw new HttpException(
+        {
+          status: false,
+          data: {},
+          message: 'JWT Key not available',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+
     try {
-      if (!process.env.AUTH_ACCESS_TOKEN_SECRET_KEY)
-        throw new HttpException(
-          'JWT Key not available',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
       let decodedData = await this.jwtService.verifyAsync(accessToken, {
         secret: process.env.AUTH_ACCESS_TOKEN_SECRET_KEY,
       });
       request['userId'] = decodedData.id;
       request['email'] = decodedData.email;
     } catch (error) {
-      throw new UnauthorizedException(
-        this.createResponseService.customErrorResponse(401, {}, 'Unauthorized'),
+      throw new ForbiddenException(
+        this.createResponseService.customErrorResponse(403, {}, 'Forbidden'),
       );
     }
     return true;
