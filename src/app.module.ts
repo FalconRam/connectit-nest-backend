@@ -16,6 +16,9 @@ import { PostsModule } from './posts/posts.module';
 import { PostsService } from './posts/posts.service';
 import { CloudinaryService } from './utils/cloudinary/cloudinary.service';
 import { postsProviders } from './posts/posts.providers';
+import { ProfileController } from './profile/profile.controller';
+import { ProfileService } from './profile/profile.service';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -26,8 +29,9 @@ import { postsProviders } from './posts/posts.providers';
     UserModule,
     AuthModule,
     PostsModule,
+    ProfileModule,
   ],
-  controllers: [AppController, UserController, PostsController],
+  controllers: [AppController, UserController, PostsController, ProfileController],
   providers: [
     AppService,
     UserService,
@@ -40,6 +44,7 @@ import { postsProviders } from './posts/posts.providers';
       useClass: AuthGuard,
     },
     CloudinaryService,
+    ProfileService,
   ],
 })
 export class AppModule {}

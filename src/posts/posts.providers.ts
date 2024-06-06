@@ -3,6 +3,7 @@ import {
   postMessageSchema,
   savedUserPostsSchema,
 } from './schemas/posts.schema';
+import { userProviders } from 'src/user/user.providers';
 
 export const postsProviders = [
   {
@@ -17,4 +18,5 @@ export const postsProviders = [
       mongoose.model('SavedUserPosts', savedUserPostsSchema),
     inject: ['DATABASE_CONNECTION'],
   },
+  userProviders[0], // User Model
 ];

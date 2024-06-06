@@ -37,9 +37,9 @@ export class CreateResponseService {
     );
   }
   handleError(error: Error) {
-    console.log(error.message);
     if (error instanceof HttpException) throw error;
-    else
+    else {
+      console.log(error.message);
       throw new InternalServerErrorException(
         this.customErrorResponse(
           500,
@@ -47,5 +47,6 @@ export class CreateResponseService {
           'An Error Occured, Please Try again.',
         ),
       );
+    }
   }
 }
