@@ -9,8 +9,8 @@ import { CloudinaryService } from 'src/utils/cloudinary/cloudinary.service';
 @Injectable()
 export class PostsService {
   constructor(
-    @Inject('POSTS_TEST_MODEL')
-    private postsTestModel: Model<Posts>,
+    @Inject('POSTS_MESSAGE_MODEL')
+    private postsMessageModel: Model<Posts>,
     @Inject('SAVED_USER_POSTS_MODEL')
     private savedUserPostsModel: Model<SavedUserPosts>,
     private createResponse: CreateResponseService,
@@ -21,10 +21,10 @@ export class PostsService {
     req: CustomRequest,
     { title, message, tags, selectedFile, name }: CreatePostDTO,
   ) {
-    const session = await this.postsTestModel.startSession();
+    const session = await this.postsMessageModel.startSession();
     session.startTransaction();
     try {
-      const postInst = new this.postsTestModel({
+      const postInst = new this.postsMessageModel({
         title,
         message,
         tags,

@@ -32,7 +32,7 @@ const postCommentSchema = new mongoose.Schema({
   },
 });
 
-const postsTestSchema = new mongoose.Schema(
+const postMessageSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     message: { type: String, required: true },
@@ -63,4 +63,4 @@ const savedUserPostsSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export { postsTestSchema, savedUserPostsSchema };
+export { postMessageSchema, savedUserPostsSchema };

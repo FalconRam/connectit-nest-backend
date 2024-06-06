@@ -1,11 +1,14 @@
 import { Mongoose } from 'mongoose';
-import { postsTestSchema, savedUserPostsSchema } from './schemas/posts.schema';
+import {
+  postMessageSchema,
+  savedUserPostsSchema,
+} from './schemas/posts.schema';
 
 export const postsProviders = [
   {
-    provide: 'POSTS_TEST_MODEL',
+    provide: 'POSTS_MESSAGE_MODEL',
     useFactory: (mongoose: Mongoose) =>
-      mongoose.model('PostsTest', postsTestSchema),
+      mongoose.model('PostMessage', postMessageSchema),
     inject: ['DATABASE_CONNECTION'],
   },
   {
