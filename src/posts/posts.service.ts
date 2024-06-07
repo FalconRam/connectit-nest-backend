@@ -1,8 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDTO } from './dto/CreatePostDTO.dto';
 import { CreateResponseService } from 'src/utils/createResponse/createResponse.service';
-import { CustomRequest, UserServiceResponse } from 'src/common/types';
-import { Model } from 'mongoose';
+import { CustomRequest } from 'src/common/types';
+import mongoose, { Model } from 'mongoose';
 import { Posts, SavedUserPosts } from './posts.interface';
 import { CloudinaryService } from 'src/utils/cloudinary/cloudinary.service';
 import { User } from 'src/user/user.interface';
@@ -67,9 +67,46 @@ export class PostsService {
     }
   }
 
-  async getPostByPostIdService(postId: string) {
+  async getPostByPostIdService(userId: string, postId: string) {
     try {
-      const post = await this.postsMessageModel.findById(postId).select('-__v');
+      const pipeLine = [
+        {
+          $match: {
+            _id: new mongoose.Types.ObjectId(postId),
+          },
+        },
+        {
+          $addFields: {
+            creator: { $toObjectId: userId },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'creator',
+            foreignField: '_id',
+            as: 'userInfo',
+          },
+        },
+        {
+          $project: {
+            title: 1,
+            message: 1,
+            name: 1,
+            creator: 1,
+            tags: 1,
+            selectedFile: 1,
+            likes: 1,
+            comments: 1,
+            commentsInfo: 1,
+            createdAt: 1,
+            profilePicture: { $arrayElemAt: ['$userInfo.profilePicture', 0] },
+            creatorBio: { $arrayElemAt: ['$userInfo.bio', 0] },
+          },
+        },
+      ];
+
+      const post = await this.postsMessageModel.aggregate(pipeLine);
 
       if (!post)
         throw new NotFoundException(
@@ -134,6 +171,53 @@ export class PostsService {
       return this.createResponse.successResponse(updatedPost, '');
     } catch (error) {
       return this.createResponse.handleError(error);
+    }
+  }
+
+  async getPostbyFollowingService(userId: string) {
+    try {
+      const { following: followingIds } = await this.getUserById(userId);
+      followingIds.push(userId);
+
+      let pipeline = [
+        { $match: { creator: { $in: followingIds } } },
+        {
+          $addFields: {
+            creator: { $toObjectId: '$creator' },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'creator',
+            foreignField: '_id',
+            as: 'userInfo',
+          },
+        },
+        {
+          $project: {
+            title: 1,
+            message: 1,
+            name: 1,
+            creator: 1,
+            tags: 1,
+            selectedFile: 1,
+            likes: 1,
+            comments: 1,
+            commentsInfo: 1,
+            createdAt: 1,
+            profilePicture: { $arrayElemAt: ['$userInfo.profilePicture', 0] },
+            creatorBio: { $arrayElemAt: ['$userInfo.bio', 0] },
+          },
+        },
+      ];
+      const posts = await this.postsMessageModel
+        .aggregate(pipeline)
+        .sort({ createdAt: -1 });
+
+      return this.createResponse.successResponse(posts, 'Posts Fetched');
+    } catch (error) {
+      this.createResponse.handleError(error);
     }
   }
 

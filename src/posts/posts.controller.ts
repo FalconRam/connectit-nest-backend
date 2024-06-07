@@ -42,13 +42,9 @@ export class PostsController {
     });
   }
 
-  @Get('/:postId')
-  getPostByPostIdContorller(@Param() params: any) {
-    if (!params.postId)
-      throw new BadRequestException(
-        this.createResponse.customErrorResponse(400, {}, 'PostId is Required'),
-      );
-    return this.postsService.getPostByPostIdService(params.postId);
+  @Get('/feeds')
+  getPostsByFollowing(@Req() req: CustomRequest) {
+    return this.postsService.getPostbyFollowingService(req.userId);
   }
 
   @Get('/user-posts/:userId')
@@ -75,5 +71,14 @@ export class PostsController {
       params.postId,
       updatePostDTO,
     );
+  }
+
+  @Get('/:postId')
+  getPostByPostIdContorller(@Req() req: CustomRequest, @Param() params: any) {
+    if (!params.postId)
+      throw new BadRequestException(
+        this.createResponse.customErrorResponse(400, {}, 'PostId is Required'),
+      );
+    return this.postsService.getPostByPostIdService(req.userId, params.postId);
   }
 }
